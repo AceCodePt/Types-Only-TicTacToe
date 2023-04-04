@@ -125,6 +125,27 @@ type NewBoard<Board extends BoardType, Turn extends TurnType, PlayerCharacter ex
         Board[prop]
 }
 
+type CheckNewBoard = NewBoard<InitialBoard, "1", "X">
+//   ^?
+type CheckNewBoard2 = NewBoard<CheckNewBoard, "2", "O">
+//   ^?
+
+type TicTacToe<Turns extends string, Board extends BoardType = InitialBoard, PlayerCharacter extends PlayerCharacterUnion = FirstPlayer> =
+    Winner<Board> extends PlayerCharacterUnion ?
+        BoardWithText<Board, `The winner is ${Winner<Board>}`> :
+    Tie<Board> extends true ?
+        BoardWithText<Board, `Tie!`> :
+    Turns extends `${infer Turn}${infer RestOfTurns}`?
+        Turn extends TurnType ?
+            Board[TurnToCord<Turn>[0]][TurnToCord<Turn>[1]] extends Blank ?
+                TicTacToe<RestOfTurns, NewBoard<Board, Turn, PlayerCharacter>, PlayerCharacter extends FirstPlayer ? SecondPlayer : FirstPlayer>:
+            BoardWithText<Board, `Cannot to place twice on the same position -> ${Turn}`>:
+        BoardWithText<Board, `Invalid Character ${Turn}`> :
+    Board
+
+
+type Result = TicTacToe<"5219732">
+//    ^?
 
 
 
